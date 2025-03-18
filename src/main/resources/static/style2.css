@@ -1,0 +1,824 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table,
+th,
+td {
+    border: 1px solid #ccc;
+}
+
+th,
+td {
+    padding: 15px;
+    text-align: center;
+}
+
+thead {
+    background-color: #3b4adf;
+    color: white;
+}
+
+/* Đặt kiểu cho thanh tìm kiếm */
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.search-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    /* Để padding không làm rộng thêm chiều rộng của input */
+    margin-right: 10px;
+}
+
+.search-container button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #3b4adf;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-container button:hover {
+    background-color: #2d3bb5;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Định dạng cho phân trang */
+.pagination {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.pagination a {
+    color: #3b4adf;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    margin: 0 5px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.pagination a.active {
+    background-color: #3b4adf;
+    color: #fff;
+    border: 1px solid #3b4adf;
+}
+
+.pagination a:hover {
+    background-color: #2d3bb5;
+    color: #fff;
+}
+
+.pagination span {
+    margin: 0 5px;
+    font-size: 16px;
+}
+
+
+
+
+h2 {
+    font-size: 24px;
+    /* Kích thước chữ */
+    color: #333;
+    /* Màu chữ */
+    margin-bottom: 20px;
+    /* Khoảng cách dưới tiêu đề */
+    margin-left: 20px;
+    /* Khoảng cách bên trái */
+    font-weight: bold;
+    /* Chữ đậm */
+    text-align: left;
+    /* Căn trái tiêu đề (tùy chọn) */
+}
+
+
+
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Layout chính */
+.container {
+    display: flex;
+    transition: all 0.3s ease;
+    width: 90vw;
+    /* Chiếm toàn bộ chiều ngang */
+    height: 100vh;
+}
+
+/* Sidebar mặc định */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: #3b4adf;
+    color: #fff;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #2d3bb5;
+    transition: width 0.3s ease;
+}
+
+/* Khi thu gọn sidebar */
+.sidebar.collapsed {
+    width: 50px;
+}
+
+/* Nội dung chính */
+.content {
+    margin-left: 250px;
+    /* Tương ứng với chiều rộng của sidebar */
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+    flex-grow: 1;
+}
+
+/* Khi sidebar thu gọn, nội dung sẽ nới rộng */
+.sidebar.collapsed~.content {
+    margin-left: 60px;
+    /* Thu gọn theo chiều rộng của sidebar */
+}
+
+/* Cấu hình các thành phần bên trong sidebar */
+.profile {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 10px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .profile {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+.profile img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #fff;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 30px;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed ul {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Nút toggle để thu gọn sidebar */
+.toggle-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .toggle-btn {
+    transform: rotate(180deg);
+}
+
+
+
+
+
+
+
+
+.content {
+    margin-left: 270px;
+    padding: 20px;
+}
+
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex: 1 1 200px;
+    border: 1px solid #ddd;
+    /* Thêm viền cho các thẻ */
+}
+
+.card h3 {
+    margin: 0;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.card {
+    position: relative;
+    /* Đặt thẻ card là relative để các phần tử bên trong có thể định vị tuyệt đối */
+    padding-bottom: 20px;
+    /* Tạo khoảng cách phía dưới cho phần tử p */
+}
+
+.card p {
+    position: absolute;
+    bottom: 10px;
+    /* Đặt cách cạnh dưới 10px */
+    right: 10px;
+    /* Đặt cách cạnh phải 10px */
+    margin: 0;
+    font-size: 1.5em;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Roboto', sans-serif;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.card p:hover {
+    transform: scale(1.05);
+}
+
+
+.icon {
+    width: 70px;
+    /* Điều chỉnh chiều rộng ảnh lớn hơn */
+    height: auto;
+    /* Giữ tỉ lệ ảnh */
+    margin-right: 10px;
+    /* Khoảng cách giữa ảnh và nội dung bên cạnh */
+    margin-top: 5px;
+    /* Di chuyển ảnh xuống phía dưới */
+}
+
+.lower-section {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.chart {
+    flex: 2;
+    height: 370px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    /* Thêm viền cho phần biểu đồ */
+}
+
+.devices {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    /* Thêm viền cho danh sách thiết bị */
+}
+
+.devices h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.device-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    border-radius: 5px;
+    /* Thêm viền cho các mục thiết bị */
+}
+
+.device-item:last-child {
+    border-bottom: none;
+}
+
+.device-item h4 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.toggle-button {
+    background-color: #3b4adf;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-button.off {
+    background-color: #ccc;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 300px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+}
+
+.modal-body p {
+    margin: 10px 0;
+    font-size: 1em;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: linear-gradient(135deg, #6e45e2, #88d3ce);
+    color: #fff;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.profile img {
+    border-radius: 50%;
+    width: 110px;
+    height: 110px;
+    border: 4px solid #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 10px;
+    transition: transform 0.4s ease-in-out, box-shadow 0.4s;
+}
+
+.profile img:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.profile-info h4 {
+    margin: 10px 0 5px;
+    font-size: 1.5em;
+}
+
+.profile-info p {
+    margin: 0;
+    color: #ddd;
+    font-size: 0.9em;
+    transition: color 0.3s ease-in-out;
+}
+
+
+.profile-info p:hover {
+    color: #fff;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    padding: 15px 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.1em;
+    transition: color 0.3s ease-in-out;
+}
+
+.sidebar ul li a:hover {
+    color: #ddd;
+}
+
+/* Content area styling */
+.content {
+    margin-left: 270px;
+    padding: 40px;
+    transition: margin-left 0.4s ease-in-out;
+}
+
+.content h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #6e45e2;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-details {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: box-shadow 0.4s ease-in-out;
+}
+
+.profile-details:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.profile-details p {
+    font-size: 1.2em;
+    margin: 15px 0;
+    line-height: 1.8;
+}
+
+.profile-details p strong {
+    color: #6e45e2;
+}
+
+.profile-details p:hover strong {
+    text-decoration: underline;
+}
+
+/* Hover animation for profile section */
+#profileAvatar {
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+
+#profileAvatar:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .content {
+        margin-left: 220px;
+        padding: 20px;
+    }
+
+    .profile img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .sidebar ul li a {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 576px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .content {
+        margin-left: 200px;
+    }
+}
+
+
+
+
+
+
+/* màu sắc nhiệt độ*/
+.card {
+    padding: 20px;
+    margin: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.dust-low {
+    background-color: rgba(144, 238, 144, 0.2);
+    /* Xanh lá nhạt */
+}
+
+.dust-medium {
+    background-color: rgba(255, 255, 0, 0.2);
+    /* Vàng nhạt */
+}
+
+.dust-high {
+    background-color: rgba(255, 140, 0, 0.2);
+    /* Cam nhạt */
+}
+
+.dust-danger {
+    background-color: rgba(255, 0, 0, 0.2);
+    /* Đỏ nhạt */
+}
+
+
+
+
+
+
+
+
+
+
+/*thêm icon*/
+.device-icon {
+    font-size: 24px;
+    /* Kích thước icon */
+    margin-right: 10px;
+    /* Khoảng cách giữa icon và nút */
+    transition: transform 0.3s;
+    /* Thay đổi hoạt ảnh */
+}
+
+.toggle-button.off+.device-icon {
+    transform: rotate(0deg);
+    /* Không quay khi tắt */
+}
+
+.toggle-button:not(.off)+.device-icon {
+    transform: rotate(360deg);
+    /* Quay khi bật */
+}
+
+
+
+
+.device-item h4 {
+    margin-right: 5px;
+    /* Khoảng cách giữa tiêu đề và icon */
+    margin-bottom: 0;
+    /* Đặt margin-bottom về 0 để không có khoảng cách không cần thiết phía dưới */
+    flex: 1;
+    /* Để tiêu đề chiếm không gian còn lại */
+}
+
+.devices {
+    display: flex;
+    flex-direction: column;
+    /* Xếp theo cột */
+    gap: 10px;
+    /* Khoảng cách giữa các thiết bị */
+}
+
+.device-item {
+    display: flex;
+    /* Sử dụng flexbox để căn chỉnh */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    justify-content: space-between;
+    /* Giữa khoảng cách giữa icon và nút */
+}
+
+.device-item h4 {
+
+    /* Khoảng cách giữa tiêu đề và icon */
+    margin-bottom: 0;
+    /* Đặt margin-bottom về 0 để không có khoảng cách không cần thiết phía dưới */
+    flex: 1;
+    /* Để tiêu đề chiếm không gian còn lại */
+}
+
+
+
+
+
+
+
+
+
+.device-icon {
+    font-size: 24px;
+    /* Kích thước icon */
+    margin-right: 10px;
+    /* Khoảng cách giữa icon và nút */
+    transition: transform 0.3s, opacity 0.3s;
+    /* Thêm hoạt ảnh cho xoay và độ mờ */
+    opacity: 0.5;
+    /* Mặc định là mờ */
+}
+
+.device-icon.active {
+    opacity: 1;
+    /* Hiển thị khi bật */
+}
+
+.device-icon.lamp-on {
+    color: rgb(233, 233, 54);
+    /* Màu sáng của đèn */
+}
+
+.device-icon.fan-rotate {
+    animation: spin 1s linear infinite;
+    /* Hoạt ảnh xoay cho quạt */
+}
+
+.device-icon.system-rotate {
+    animation: spin 1s linear infinite;
+    /* Hoạt ảnh xoay cho hệ thống */
+}
+
+.device-icon.tv-on {
+    opacity: 1;
+    /* Hiển thị khi tivi bật */
+}
+
+/* Định nghĩa hoạt ảnh xoay */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.toggle-button {
+    padding: 5px 10px;
+    /* Padding cho nút */
+}
+
+.toggle-button.off {
+    background-color: #ff4d4d;
+    /* Màu nền nút tắt */
+    color: white;
+    /* Màu chữ */
+}
+
+.toggle-button:not(.off) {
+    background-color: #4CAF50;
+    /* Màu nền nút bật */
+    color: white;
+    /* Màu chữ */
+}
+
+
+
+
+
+
+.header-container {
+    display: flex;
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+}
+
+.device-container {
+    display: inline-block;
+    margin-left: 15px;
+    /* Khoảng cách giữa nút Device và thẻ h2 */
+}
+
+#deviceList {
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    max-width: 150px;
+    position: absolute;
+}
+
+
+.control-container {
+    display: flex;
+    /* justify-content: space-between; */
+    /* Căn chỉnh các phần tử sang hai bên */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    margin-bottom: 20px;
+    /* Khoảng cách dưới cùng */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.pagination-container {
+    display: inline-block;
+    margin-left: 15px;
+    /* Khoảng cách giữa nút Device và các nút phân trang */
+}

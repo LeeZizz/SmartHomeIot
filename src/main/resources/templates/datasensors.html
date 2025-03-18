@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data information</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="profile" id="profileAvatar">
+        <img src="https://cdn-icons-png.flaticon.com/128/1323/1323734.png" alt="Avatar">
+        <div class="profile-info">
+            <h4>Thắng</h4>
+            <p>leedt2003hy@gmail.com</p>
+        </div>
+    </div>
+    <ul>
+        <li><a href="/homepage">Dashboard</a></li>
+        <li><a href="/dashboard">Dashboard 2</a></li>
+        <li><a href="/datasensors">Data Sensors</a></li>
+        <li><a href="/action_history">Action History</a></li>
+        <li><a href="/profile">Profile</a></li>
+    </ul>
+</div>
+
+<div class="content">
+    <div class="header-container">
+        <h2>Device Information</h2>
+    </div>
+
+
+
+    <!-- Thanh tìm kiếm -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by ID, Temperature, Humidity, Light Intensity...">
+        <button onclick="searchTable()">Search</button>
+    </div>
+    <div class="control-container">
+        <div class="sort-container">
+            <label for="sortSelect">Sort by:</label>
+            <select id="sortSelect" onchange="sortTable(this.value)">
+                <option value="">Select...</option>
+                <option value="temperature_asc">Temperature (Asc)</option>
+                <option value="temperature_desc">Temperature (Desc)</option>
+                <option value="humidity_asc">Humidity (Asc)</option>
+                <option value="humidity_desc">Humidity (Desc)</option>
+                <option value="light_asc">Light Intensity (Asc)</option>
+                <option value="light_desc">Light Intensity (Desc)</option>
+            </select>
+        </div>
+        <div class="pagination-container">
+            <label for="rowsPerPageInput">Rows per page:</label>
+            <input type="number" id="rowsPerPageInput" value="7" min="1" max="10"
+                   onchange="setRowsPerPage(this.value)" style="width: 50px; margin-left: 5px;">
+        </div>
+    </div>
+    <table id="deviceTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Temperature</th>
+            <th>Humidity</th>
+            <th>Light Intensity</th>
+            <th>Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Dữ liệu bảng sẽ được cập nhật bằng JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <div class="pagination" id="pagination">
+        <!-- Các liên kết phân trang sẽ được cập nhật bằng JavaScript -->
+    </div>
+</div>
+
+<script>
+    let rowsPerPage = 7;
+    let currentPage = 1;
+    const table = document.getElementById("deviceTable").getElementsByTagName("tbody")[0];
+    const pagination = document.getElementById("pagination");
+    let data = [];
+
+    // Hàm render bảng
+    function renderTable(page) {
+        table.innerHTML = ""; // Xóa bảng hiện tại
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = data.slice(start, end);
+
+        pageData.forEach(rowData => {
+            const row = table.insertRow();
+            rowData.forEach(cellData => {
+                const cell = row.insertCell();
+                cell.textContent = cellData;
+            });
+        });
+    }
+
+    // Hàm render phân trang
+function renderPagination() {
+    const pageCount = Math.ceil(data.length / rowsPerPage);
+    pagination.innerHTML = "";
+
+    if (pageCount <= 1) return; // Không cần phân trang nếu chỉ có một trang
+
+    // Thêm liên kết trang đầu tiên
+    const firstPage = document.createElement("a");
+    firstPage.textContent = "1";
+    firstPage.href = "#";
+    if (currentPage === 1) {
+        firstPage.classList.add("active");
+    }
+    firstPage.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = 1;
+        renderTable(currentPage);
+        renderPagination();
+    });
+    pagination.appendChild(firstPage);
+
+    // Thêm liên kết trang trước đó nếu cần
+    if (currentPage > 2) {
+        const dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.classList.add("dots");
+        pagination.appendChild(dots);
+    }
+
+    // Thêm các liên kết trang gần với trang hiện tại
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(pageCount - 1, currentPage + 1);
+    for (let i = startPage; i <= endPage; i++) {
+        const pageLink = document.createElement("a");
+        pageLink.textContent = i;
+        pageLink.href = "#";
+        if (i === currentPage) {
+            pageLink.classList.add("active");
+        }
+        pageLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            currentPage = i;
+            renderTable(currentPage);
+            renderPagination();
+        });
+        pagination.appendChild(pageLink);
+    }
+
+    // Thêm liên kết trang tiếp theo nếu cần
+    if (currentPage < pageCount - 1) {
+        const dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.classList.add("dots");
+        pagination.appendChild(dots);
+    }
+
+    // Thêm liên kết trang cuối cùng
+    const lastPage = document.createElement("a");
+    lastPage.textContent = pageCount;
+    lastPage.href = "#";
+    if (currentPage === pageCount) {
+        lastPage.classList.add("active");
+    }
+    lastPage.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = pageCount;
+        renderTable(currentPage);
+        renderPagination();
+    });
+    pagination.appendChild(lastPage);
+}
+
+
+    // Hàm tìm kiếm trong bảng
+    function searchTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const filteredData = data.filter(row =>
+            row.some(cell => cell.toString().toUpperCase().includes(filter))
+        );
+
+        data = filteredData; // Cập nhật lại dữ liệu
+        currentPage = 1; // Reset lại trang hiện tại
+        renderTable(currentPage);
+        renderPagination();
+    }
+
+    // Hàm thay đổi số dòng trên mỗi trang
+    function setRowsPerPage(value) {
+        rowsPerPage = parseInt(value);
+        currentPage = 1; // Reset lại trang hiện tại
+        fetchData(); // Gọi lại API với rowsPerPage mới
+    }
+
+    // Hàm sắp xếp bảng theo tiêu chí
+    function sortTable(criteria) {
+        if (criteria.includes("temperature")) {
+            data.sort((a, b) => criteria === "temperature_asc" ? a[1] - b[1] : b[1] - a[1]);
+        } else if (criteria.includes("humidity")) {
+            data.sort((a, b) => criteria === "humidity_asc" ? a[2] - b[2] : b[2] - a[2]);
+        } else if (criteria.includes("light")) {
+            data.sort((a, b) => criteria === "light_asc" ? a[3] - b[3] : b[3] - a[3]);
+        }
+        currentPage = 1; // Reset lại trang hiện tại
+        renderTable(currentPage);
+        renderPagination();
+    }
+
+    // Hàm lấy dữ liệu từ API
+    function fetchData() {
+        $.ajax({
+            url: 'http://localhost:8080/api/sensors/all',  // Đường dẫn API để lấy tất cả dữ liệu
+            type: 'GET',
+            data: { rowsPerPage: rowsPerPage, page: currentPage },  // Gửi các tham số phân trang
+            success: function (response) {
+                console.log(response); // Kiểm tra dữ liệu nhận được từ API
+                data = response.map(item => [
+                    item.id,                // id
+                    item.temperature,        // temperature
+                    item.humidity,           // humidity
+                    item.brightness,         // brightness
+                    item.timestamp           // timestamp
+                ]);
+                renderTable(currentPage);
+                renderPagination();
+            },
+            error: function () {
+                alert('Failed to load sensor data.');
+            }
+        });
+    }
+
+    // Initialize
+    fetchData();  // Lấy dữ liệu ngay khi trang được tải
+</script>
+
+
+</body>
+
+</html>

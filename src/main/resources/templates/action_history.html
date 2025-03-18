@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action History</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="profile">
+        <img src="https://cdn-icons-png.flaticon.com/128/1323/1323734.png" alt="Avatar">
+        <div class="profile-info">
+            <h4>Thắng</h4>
+            <p>leedt2003hy@gmail.com</p>
+        </div>
+    </div>
+    <ul>
+        <li><a href="/homepage">Dashboard</a></li>
+        <li><a href="/dashboard">Dashboard 2</a></li>
+        <li><a href="/datasensors">Data Sensors</a></li>
+        <li><a href="/action_history">Action History</a></li> <!-- Liên kết đến trang Action History -->
+        <li><a href="/profile">Profile</a></li>
+    </ul>
+</div>
+
+<div class="content">
+    <div class="header-container">
+        <h2>Action History</h2>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search by ID, Device, Action, Time...">
+        <button onclick="searchTable(); filterByDevice()">Search</button>
+    </div>
+
+    <div class="control-container">
+        <div class="device-container">
+            <button onclick="toggleDeviceList()">Device</button>
+            <div id="deviceList" style="display: none;">
+                <label><input type="checkbox" value="Lamps"> Lamps</label><br>
+                <label><input type="checkbox" value="Fan"> Fan</label><br>
+                <label><input type="checkbox" value="Heater"> Heater</label>
+            </div>
+            <div class="pagination-container">
+                <label for="rowsPerPageInput">Rows per page:</label>
+                <input type="number" id="rowsPerPageInput" value="7" min="1" max="10"
+                       onchange="setRowsPerPage(this.value)" style="width: 50px; margin-left: 5px;">
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bảng dữ liệu -->
+    <table id="actionTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Device</th>
+            <th>Action</th>
+            <th>Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Dữ liệu bảng sẽ được cập nhật bằng JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <div class="pagination" id="pagination">
+        <!-- Các liên kết phân trang sẽ được cập nhật bằng JavaScript -->
+    </div>
+</div>
+
+<script>
+    let rowsPerPage = 7; // Mặc định là 7 hàng
+let currentPage = 1;
+const table = document.getElementById("actionTable").getElementsByTagName("tbody")[0];
+const pagination = document.getElementById("pagination");
+let data = [];  // Dữ liệu sẽ được lấy từ API
+
+// Hàm gọi API để lấy dữ liệu
+async function fetchData() {
+    try {
+        const response = await fetch("http://localhost:8080/api/device-actions"); // Thay "API_URL" bằng URL của API bạn
+        if (response.ok) {
+            const jsonData = await response.json(); // Giả sử API trả về dữ liệu JSON
+            data = jsonData;  // Cập nhật dữ liệu
+
+            // Kiểm tra xem dữ liệu trả về có phải là mảng không
+            if (Array.isArray(data)) {
+                renderTable(currentPage);
+                renderPagination();
+            } else {
+                console.error("Dữ liệu trả về không phải là mảng");
+            }
+        } else {
+            console.error("Lỗi khi gọi API: ", response.statusText);
+        }
+    } catch (error) {
+        console.error("Lỗi kết nối API: ", error);
+    }
+}
+
+// Hàm render bảng
+function renderTable(page) {
+    table.innerHTML = "";
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = data.slice(start, end);
+
+    pageData.forEach(rowData => {
+        // Kiểm tra rowData có phải là đối tượng hay không
+        if (rowData && typeof rowData === 'object') {
+            const row = table.insertRow();
+            // Trích xuất các thuộc tính của đối tượng rowData
+            const cell1 = row.insertCell();
+            cell1.textContent = rowData.id;
+
+            const cell2 = row.insertCell();
+            cell2.textContent = rowData.device;
+
+            const cell3 = row.insertCell();
+            cell3.textContent = rowData.action;
+
+            const cell4 = row.insertCell();
+            cell4.textContent = rowData.timestamp;
+        } else {
+            console.error("rowData không phải là đối tượng hợp lệ: ", rowData);
+        }
+    });
+}
+
+// Hàm render phân trang
+function renderPagination() {
+    const pageCount = Math.ceil(data.length / rowsPerPage);
+    pagination.innerHTML = "";
+
+    if (pageCount <= 1) return; // Không cần phân trang nếu chỉ có một trang
+
+    // Thêm liên kết trang đầu tiên
+    const firstPage = document.createElement("a");
+    firstPage.textContent = "1";
+    firstPage.href = "#";
+    if (currentPage === 1) {
+        firstPage.classList.add("active");
+    }
+    firstPage.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = 1;
+        renderTable(currentPage);
+        renderPagination();
+    });
+    pagination.appendChild(firstPage);
+
+    // Thêm liên kết trang trước đó
+    if (currentPage > 2) {
+        const dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.classList.add("dots");
+        pagination.appendChild(dots);
+    }
+
+    // Thêm các liên kết trang gần với trang hiện tại
+    const startPage = Math.max(2, currentPage - 1);
+    const endPage = Math.min(pageCount - 1, currentPage + 1);
+    for (let i = startPage; i <= endPage; i++) {
+        const pageLink = document.createElement("a");
+        pageLink.textContent = i;
+        pageLink.href = "#";
+        if (i === currentPage) {
+            pageLink.classList.add("active");
+        }
+        pageLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            currentPage = i;
+            renderTable(currentPage);
+            renderPagination();
+        });
+        pagination.appendChild(pageLink);
+    }
+
+    // Thêm liên kết trang tiếp theo
+    if (currentPage < pageCount - 1) {
+        const dots = document.createElement("span");
+        dots.textContent = "...";
+        dots.classList.add("dots");
+        pagination.appendChild(dots);
+    }
+
+    // Thêm liên kết trang cuối cùng
+    const lastPage = document.createElement("a");
+    lastPage.textContent = pageCount;
+    lastPage.href = "#";
+    if (currentPage === pageCount) {
+        lastPage.classList.add("active");
+    }
+    lastPage.addEventListener("click", (e) => {
+        e.preventDefault();
+        currentPage = pageCount;
+        renderTable(currentPage);
+        renderPagination();
+    });
+    pagination.appendChild(lastPage);
+}
+
+// Hàm cập nhật số hàng mỗi trang
+function setRowsPerPage(count) {
+    rowsPerPage = Math.max(1, Math.min(10, count)); // Cập nhật số hàng hiển thị, giới hạn từ 1 đến 10
+    currentPage = 1; // Đặt lại trang hiện tại về 1
+    renderTable(currentPage); // Vẽ lại bảng với số hàng mới
+    renderPagination(); // Cập nhật phân trang
+}
+
+// Gọi hàm fetchData khi tải trang
+window.onload = () => {
+    fetchData(); // Lấy dữ liệu từ API
+    document.getElementById("rowsPerPageInput").value = rowsPerPage; // Đặt giá trị mặc định cho ô nhập
+};
+
+
+
+
+    function searchTable() {
+        const input = document.getElementById("searchInput");
+        const filter = input.value.toUpperCase();
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            let found = false;
+            for (let j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toUpperCase().indexOf(filter) > -1) {
+                    found = true;
+                    break;
+                }
+            }
+            rows[i].style.display = found ? "" : "none";
+        }
+    }
+    // Initialize
+    renderTable(currentPage);
+    renderPagination();
+    // Hàm để bật/tắt hiển thị danh sách thiết bị
+    function toggleDeviceList() {
+        const deviceList = document.getElementById("deviceList");
+        deviceList.style.display = (deviceList.style.display === "none") ? "block" : "none";
+    }
+
+    // Hàm lọc bảng dựa trên thiết bị đã chọn
+    function filterByDevice() {
+        const checkboxes = document.querySelectorAll('#deviceList input[type="checkbox"]:checked');
+        const selectedDevices = Array.from(checkboxes).map(cb => cb.value.toUpperCase());
+        const rows = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            if (cells.length > 1) {
+                const deviceName = cells[1].textContent.toUpperCase();
+                rows[i].style.display = selectedDevices.includes(deviceName) ? "" : "none";
+            }
+        }
+    }
+
+    // Gọi hàm filterByDevice khi nhấn vào nút Search hoặc thay đổi thiết bị
+    document.querySelectorAll('#deviceList input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', filterByDevice);
+    });
+
+</script>
+</body>
+
+</html>

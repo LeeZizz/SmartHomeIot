@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard</title>
+    <link rel="stylesheet" href="style2.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Thêm CSS vào đây -->
+</head>
+
+<body>
+<div class="container">
+    <div class="sidebar" id="sidebar">
+        <button class="toggle-btn" id="toggleBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="profile" id="profileAvatar">
+            <img src="https://cdn-icons-png.flaticon.com/128/1323/1323734.png" alt="Avatar">
+            <div class="profile-info">
+                <h4>Thang</h4>
+                <p>leedt2003hy@gmail.com</p>
+            </div>
+        </div>
+        <ul>
+            <li><a href="/homepage">Dashboard</a></li>
+            <li><a href="/dashboard">Dashboard 2</a></li>
+            <li><a href="/datasensors">Data Sensors</a></li>
+            <li><a href="/action_history">Action History</a></li>
+            <li><a href="/profile">Profile</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <div class="dashboard">
+            <div class="card dust-low">
+                <h3>Dust Concentration</h3>
+                <img src="https://cdn-icons-png.flaticon.com/128/4383/4383809.png" alt="Icon" class="icon">
+                <p>51</p>
+            </div>
+        </div>
+        <div class="lower-section">
+            <div class="chart">
+                <h3>Chart</h3>
+                <canvas id="environmentChart"></canvas>
+            </div>
+            <div class="devices">
+                <h3>My Devices</h3>
+                <div class="device-item">
+                    <h4>Led 1</h4>
+                    <i class="device-icon fas fa-lightbulb"></i>
+                    <button class="toggle-button off" data-device="led1" data-onMessage="led1on" data-offMessage="led1off" onclick="toggleDevice(this, 'led1')">Off</button>
+                </div>
+                <div class="device-item">
+                    <h4>Led 2</h4>
+                    <i class="device-icon fas fa-lightbulb"></i>
+                    <button class="toggle-button off" data-device="led2" data-onMessage="led2on" data-offMessage="led2off" onclick="toggleDevice(this, 'led2')">Off</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Structure -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <div class="modal-header">
+            <h2>Thắng</h2>
+        </div>
+        <div class="modal-body">
+            <p><strong>Name:</strong> Lê Đức Thắng </p>
+            <p><strong>Mã Sv:</strong> B21DCCN664</p>
+            <p><strong>Lớp:</strong> D21CQCN04-B</p>
+            <p><strong>Email:</strong> leedt2003hy@gmail.com</p>
+            <p><strong>Call api:</strong> file dos api</p>
+            <p><strong>File dos:</strong> link file dos</p>
+            <p><strong>Github:</strong> link github</p>
+            <p><strong>Link web:</strong> link web</p>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function toggleDevice(button, device) {
+        button.classList.toggle('off');
+
+        const icon = button.parentElement.querySelector('.device-icon');
+
+        if (button.classList.contains('off')) {
+            button.textContent = 'Off';
+            icon.classList.remove('active');
+
+            // Tắt hoạt ảnh tương ứng
+            if (device === 'lamp') {
+                icon.classList.remove('lamp-on');
+            } else if (device === 'fan') {
+                icon.classList.remove('fan-rotate');
+            } else if (device === 'system') {
+                icon.classList.remove('system-rotate');
+            } else if (device === 'tv') {
+                icon.classList.remove('tv-on');
+            }
+        } else {
+            button.textContent = 'On';
+            icon.classList.add('active');
+
+            // Bật hoạt ảnh tương ứng
+            if (device === 'lamp') {
+                icon.classList.add('lamp-on');
+            } else if (device === 'fan') {
+                icon.classList.add('fan-rotate');
+            } else if (device === 'system') {
+                icon.classList.add('system-rotate');
+            } else if (device === 'tv') {
+                icon.classList.add('tv-on');
+            }
+        }
+    }
+
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.toggle-button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            const device = button.dataset.device; // Lấy thông tin thiết bị từ thuộc tính data-device
+            toggleDevice(button, device);
+
+            // Gọi hàm để lấy JSON sau khi nút được nhấn
+            const jsonPayload = getDeviceJson(button, device);
+            console.log('JSON Payload:', jsonPayload);
+
+            // Gửi JSON tới API toggle-device
+            fetch('/api/toggle-device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: jsonPayload,  // Gửi JSON payload
+            })
+            .then(response => response.text())  // Dự kiến nhận về chuỗi
+            .then(data => {
+                console.log('API Response:', data);
+            })
+            .catch(error => {
+                console.error('Error calling API:', error);
+            });
+        });
+    });
+
+    // Hàm tạo JSON payload
+    function getDeviceJson(button, device) {
+        const isOn = button.classList.contains('on'); // Kiểm tra trạng thái hiện tại
+        const action = isOn ? 'ON' : 'OFF'; // Xác định hành động
+        const date = new Date();
+        date.setHours(date.getHours() + 7);  // Thêm 7 giờ để chuyển sang GMT+7
+        const timestamp = date.toISOString();  // Đảm bảo là chuẩn ISO 8601 (UTC)
+
+        return JSON.stringify({
+            device: device.charAt(0).toUpperCase() + device.slice(1).toLowerCase(), // Chuyển đổi tên thiết bị thành chữ cái đầu viết hoa
+            action: action,
+            timestamp: timestamp,
+        });
+    }
+
+    // Hàm toggleDevice
+    function toggleDevice(button, device) {
+        const onMessage = button.getAttribute('data-onMessage');  // Lấy thông điệp khi bật
+        const offMessage = button.getAttribute('data-offMessage');  // Thông điệp khi tắt
+        const isOn = button.classList.contains('on');
+        const message = isOn ? offMessage : onMessage;  // Đặt message cho on/off
+
+        // Kiểm tra kết nối MQTT trước khi gửi
+        if (client.connected) {
+            const payload = JSON.stringify({ message });  // Đảm bảo message có cấu trúc { message: "led1off" }
+            console.log('Payload:', payload);  // Kiểm tra payload
+
+            // Gửi lệnh MQTT
+            client.publish('esp8266/client', payload, (err) => {
+                if (err) {
+                    console.error('Error sending message:', err);
+                } else {
+                    console.log('Message sent successfully!');
+                }
+            });
+        } else {
+            console.log('MQTT not connected, trying to reconnect...');
+            // Đợi kết nối lại
+            client.on('connect', () => {
+                client.publish('esp8266/client', JSON.stringify({ message }), (err) => {
+                    if (err) {
+                        console.error('Error sending message:', err);
+                    } else {
+                        console.log('Message sent successfully!');
+                    }
+                });
+            });
+        }
+
+        // Cập nhật trạng thái của nút
+        if (isOn) {
+            button.classList.remove('on');
+            button.classList.add('off');
+            button.textContent = 'Off';
+        } else {
+            button.classList.remove('off');
+            button.classList.add('on');
+            button.textContent = 'On';
+        }
+
+        const icon = button.parentElement.querySelector('.device-icon');
+        if (button.classList.contains('off')) {
+            icon.classList.remove('active');
+            // Tắt hoạt ảnh
+            icon.classList.remove(device + '-on');
+        } else {
+            icon.classList.add('active');
+            // Bật hoạt ảnh
+            icon.classList.add(device + '-on');
+        }
+    }
+});
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Kết nối MQTT
+    const client = mqtt.connect('wss://ef8f15f9626644d5955521a6ea0dccc2.s1.eu.hivemq.cloud:8884/mqtt', {
+        username: 'Phu',
+        password: '88888888',
+    });
+
+    client.on('connect', () => {
+        console.log('MQTT connected');
+    });
+
+    client.on('error', (err) => {
+        console.error('MQTT error:', err);
+    });
+
+    client.on('close', () => {
+        console.log('MQTT connection closed');
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('environmentChart').getContext('2d');
+
+        // Dữ liệu ban đầu
+        var data = {
+            labels: [], // Thời gian sẽ được cập nhật dần
+            datasets: [{
+                label: 'Dust Concentration (µg/m³)',
+                data: [], // Dữ liệu độ bụi sẽ được cập nhật dần
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        };
+
+        // Khởi tạo biểu đồ
+        var environmentChart = new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time (s)'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Dust Concentration (µg/m³)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Hàm cập nhật dữ liệu
+        function updateData() {
+            // Lấy thời gian hiện tại
+            var currentTime = new Date().toLocaleTimeString();
+
+            // Giả lập giá trị độ bụi ngẫu nhiên (thay thế bằng cảm biến thực)
+            var dustValue = Math.floor(Math.random() * 100);
+
+            // Thêm dữ liệu vào chart
+            environmentChart.data.labels.push(currentTime);
+            environmentChart.data.datasets[0].data.push(dustValue);
+
+            // Giới hạn hiển thị tối đa 10 điểm trên biểu đồ
+            if (environmentChart.data.labels.length > 10) {
+                environmentChart.data.labels.shift(); // Xóa nhãn cũ nhất
+                environmentChart.data.datasets[0].data.shift(); // Xóa dữ liệu cũ nhất
+            }
+
+            // Cập nhật biểu đồ
+            environmentChart.update();
+        }
+
+        // Cập nhật dữ liệu mỗi 2 giây
+        setInterval(updateData, 20000);
+    });
+</script>
+
+<script src="script.js"></script>
+</body>
+
+</html>
